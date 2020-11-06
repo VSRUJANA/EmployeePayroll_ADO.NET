@@ -6,7 +6,9 @@ namespace EmployeePayroll_ADO.NET
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            EmployeeRepo repo = new EmployeeRepo();
+            if (repo.GetAllEmployee() != null)
+                Console.WriteLine("Connection Established!");
         }
     }
 }
