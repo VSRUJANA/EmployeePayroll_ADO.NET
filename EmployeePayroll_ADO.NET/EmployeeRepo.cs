@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EmployeePayroll_ADO.NET
 {
-    class EmployeeRepo
+    public class EmployeeRepo
     {
         public static string connectionString = @"Data Source=LAPTOP-BSJLU8TT\SQLEXPRESS;Initial Catalog=Payroll_ServiceDB;Integrated Security=True";
         SqlConnection connection = new SqlConnection(connectionString);
