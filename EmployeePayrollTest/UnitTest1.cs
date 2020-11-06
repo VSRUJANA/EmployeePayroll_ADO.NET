@@ -11,7 +11,7 @@ namespace EmployeePayrollTest
         public void GivenNameAndUpdatedSalary_UpdateSalaryMethod_ShouldReturnTrue()
         {
             EmployeeRepo repo = new EmployeeRepo();
-            bool updateResult = repo.UpdateSalary("Jennifer", Convert.ToDecimal("230000"));
+            bool updateResult = repo.UpdateSalary("Jennifer", Convert.ToDecimal("250000"));
             bool expected = true;
             Assert.AreEqual(updateResult, expected);
         }
