@@ -68,3 +68,10 @@ end
 
 select * from Employee
 GO
+
+CREATE procedure [dbo].[spGetEmployeeByName]
+@EmployeeName varchar(25)
+as
+BEGIN
+select * from Employee where Emp_Name=@EmployeeName;
+END
