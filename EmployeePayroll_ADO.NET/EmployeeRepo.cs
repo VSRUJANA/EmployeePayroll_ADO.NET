@@ -210,12 +210,13 @@ namespace EmployeePayroll_ADO.NET
             }
         }
 
-        public void GetEmployeesGivenDateRange(DateTime date1, DateTime date2)
+        public List<EmployeeModel> GetEmployeesGivenDateRange(DateTime date1, DateTime date2)
         {
             connection = new SqlConnection(connectionString);
             try
             {
                 EmployeeModel employeeModel = new EmployeeModel();
+                List<EmployeeModel> employeeList = new List<EmployeeModel>();
                 SqlCommand command = new SqlCommand("SpGetEmployeesByStartDateRange", this.connection);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@StartDate1", date1);
@@ -245,6 +246,7 @@ namespace EmployeePayroll_ADO.NET
                         employeeModel.TaxablePay = !dr.IsDBNull(10) ? dr.GetDecimal(10) : 0;
                         employeeModel.Tax = !dr.IsDBNull(11) ? dr.GetDecimal(11) : 0;
                         employeeModel.NetPay = !dr.IsDBNull(12) ? dr.GetDecimal(12) : 0;
+                        employeeList.Add(employeeModel);
 
                         Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.EmployeeID, employeeModel.EmployeeName, employeeModel.Gender, employeeModel.Company);
                         Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.Department, employeeModel.PhoneNumber, employeeModel.Address, employeeModel.StartDate.ToString("dd-mm-yyyy"));
@@ -257,6 +259,7 @@ namespace EmployeePayroll_ADO.NET
                 {
                     Console.WriteLine("No employee joinings found in the given data range");
                 }
+            return employeeList;
             }
             catch (Exception e)
             {
@@ -266,6 +269,7 @@ namespace EmployeePayroll_ADO.NET
             {
                 this.connection.Close();
             }
+            return null;
         }
     }
 }
