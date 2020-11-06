@@ -7,9 +7,9 @@ namespace EmployeePayroll_ADO.NET
         static void Main(string[] args)
         {
             EmployeeRepo repo = new EmployeeRepo();
-            repo.UpdateSalary("Jennifer",250000);
-            Console.WriteLine("\n");
-            repo.GetAllEmployee();
+            //repo.UpdateSalary("Jennifer",250000);
+            //repo.GetAllEmployee();
+            repo.GetEmployeeByName("Jennifer");
         }
     }
 }
