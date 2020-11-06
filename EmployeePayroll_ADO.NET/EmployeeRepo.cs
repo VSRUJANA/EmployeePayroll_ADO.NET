@@ -27,8 +27,8 @@ namespace EmployeePayroll_ADO.NET
                     {
                         // Printing column headers in Employee_Payroll
                         Console.Write("EmpID" + "\t" + "Name" + "\t\t" + "Gender" + "\t " + "Company" + "\t");
-                        Console.Write("Department" + "\t" + "PhoneNumber" + "\t" + "Address" + "\t\t" + "StartDate" + "\t");
-                        Console.Write("Basic" + "  " + "Deductions" + "  " + "Taxable" + "   " + "Tax" + "   " + "NetPay\n");
+                        Console.Write("Department" + "\t" + "PhoneNumber" + "\t" + "Address" + "\t" + "StartDate" + "\t");
+                        Console.Write("Basic" + "\t" + "Deductions" + "\t" + "Taxable" + "\t" + "Tax" + "\t" + "NetPay\n");
 
                         while (dr.Read())
                         {
@@ -48,9 +48,9 @@ namespace EmployeePayroll_ADO.NET
 
                             // Printing Employee_payroll data
                             Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.EmployeeID, employeeModel.EmployeeName, employeeModel.Gender, employeeModel.Company);
-                            Console.Write("{0}\t{1}\t{2}\t{3}", employeeModel.Department, employeeModel.PhoneNumber, employeeModel.Address, employeeModel.StartDate.ToString("dd-mm-yyyy"));
-                            Console.Write("\t{0}\t{1} \t {2}", Math.Round(employeeModel.BasicPay, 0), Math.Round(employeeModel.Deductions, 0), Math.Round(employeeModel.TaxablePay, 0));
-                            Console.Write("\t {0} \t{1}", Math.Round(employeeModel.Tax, 0), Math.Round(employeeModel.NetPay, 0));
+                            Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.Department, employeeModel.PhoneNumber, employeeModel.Address, employeeModel.StartDate.ToString("dd-mm-yyyy"));
+                            Console.Write("{0}\t{1}\t{2}\t", Math.Round(employeeModel.BasicPay, 0), Math.Round(employeeModel.Deductions, 0), Math.Round(employeeModel.TaxablePay, 0));
+                            Console.Write("{0}\t{1}", Math.Round(employeeModel.Tax, 0), Math.Round(employeeModel.NetPay, 0));
                             Console.WriteLine("\n");
                         }
                     }
@@ -121,30 +121,34 @@ namespace EmployeePayroll_ADO.NET
             {
                 using (connection)
                 {
-                    string query = @"Update Employee set BasicPay = '" + salary + "' where Emp_Name = '" + name + "'";
-                    SqlCommand command = new SqlCommand(query, connection);
-                    connection.Open();
+                    SqlCommand command = new SqlCommand("spUpdateEmployeeSalary", this.connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@EmployeeName", name);
+                    command.Parameters.AddWithValue("@BasicPay", salary);
+
+                    this.connection.Open();
+
                     var result = command.ExecuteNonQuery();
-                    connection.Close();
                     if (result != 0)
                     {
-                        Console.WriteLine("Salary of {0} updated succesfully!", name);
+                        Console.WriteLine("Salary of record with name '{0}' updated successfully",name);
                         return true;
                     }
-                    Console.WriteLine("No record with name '{0}' in the database!", name);
+                    Console.WriteLine("No record with name '{0}' found",name);
                     return false;
                 }
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                Console.WriteLine(exception.Message);
+                Console.WriteLine(e.Message);
             }
             finally
             {
-                connection.Close();
+                this.connection.Close();
             }
             return false;
         }
     }
 }
+
 
