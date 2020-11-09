@@ -11,6 +11,7 @@ namespace EmployeePayroll_ADO.NET
         public static string connectionString = @"Data Source=LAPTOP-BSJLU8TT\SQLEXPRESS;Initial Catalog=Payroll_ServiceDB;Integrated Security=True";
         SqlConnection connection = new SqlConnection(connectionString);
 
+
         // Method to retrieve the Employee Payroll from the Database
         public void GetAllEmployee()
         {
@@ -26,9 +27,10 @@ namespace EmployeePayroll_ADO.NET
                     if (dr.HasRows)
                     {
                         // Printing column headers in Employee_Payroll
-                        Console.Write("EmpID" + "\t" + "Name" + "\t\t" + "Gender" + "\t " + "Company" + "\t");
-                        Console.Write("Department" + "\t" + "PhoneNumber" + "\t" + "Address" + "\t" + "StartDate" + "\t");
-                        Console.Write("Basic" + "\t" + "Deductions" + "\t" + "Taxable" + "\t" + "Tax" + "\t" + "NetPay\n");
+                        Console.Write("ID  " + " Name  " + " Gender  " + " Company" + "\t");
+                        Console.Write("Department  " + " PhoneNo. " + "  Address" + "     " + "StartDate");
+                        Console.Write("  Basic " + "Deductions " + "Taxable  " + "Tax  " + " NetPay\n");
+                        Console.Write("------------------------------------------------------------------------------------------------------------------------");
 
                         while (dr.Read())
                         {
@@ -47,10 +49,10 @@ namespace EmployeePayroll_ADO.NET
                             employeeModel.NetPay = !dr.IsDBNull(12) ? dr.GetDecimal(12) : 0;
 
                             // Printing Employee_payroll data
-                            Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.EmployeeID, employeeModel.EmployeeName, employeeModel.Gender, employeeModel.Company);
-                            Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.Department, employeeModel.PhoneNumber, employeeModel.Address, employeeModel.StartDate.ToString("dd-mm-yyyy"));
-                            Console.Write("{0}\t{1}\t{2}\t", Math.Round(employeeModel.BasicPay, 0), Math.Round(employeeModel.Deductions, 0), Math.Round(employeeModel.TaxablePay, 0));
-                            Console.Write("{0}\t{1}", Math.Round(employeeModel.Tax, 0), Math.Round(employeeModel.NetPay, 0));
+                            Console.Write(employeeModel.EmployeeID + "   " + employeeModel.EmployeeName.PadRight(12) + employeeModel.Gender + "   " + employeeModel.Company.PadRight(12));
+                            Console.Write(employeeModel.Department.PadRight(12) + employeeModel.PhoneNumber.PadRight(12) + employeeModel.Address.PadRight(12) + employeeModel.StartDate.ToString("dd-mm-yyyy").PadRight(12));
+                            Console.Write(Math.Round(employeeModel.BasicPay, 0) + "\t" + Math.Round(employeeModel.Deductions, 0) + "\t" + Math.Round(employeeModel.TaxablePay, 0) + "\t");
+                            Console.Write(Math.Round(employeeModel.Tax, 0) + "\t" + Math.Round(employeeModel.NetPay, 0));
                             Console.WriteLine("\n");
                         }
                     }
@@ -69,49 +71,6 @@ namespace EmployeePayroll_ADO.NET
             {
                 this.connection.Close();
             }
-        }
-
-        // Method to add new entry to the database
-        public bool AddEmployee(EmployeeModel model)
-        {
-            SqlConnection connection = new SqlConnection(connectionString);
-            try
-            {
-                using (connection)
-                {
-                    SqlCommand command = new SqlCommand("SpAddEmployeeDetails", connection);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@EmployeeName", model.EmployeeName);
-                    command.Parameters.AddWithValue("@Gender", model.Gender);
-                    command.Parameters.AddWithValue("@Company", model.Company);
-                    command.Parameters.AddWithValue("@Department", model.Department);
-                    command.Parameters.AddWithValue("@PhoneNumber", model.PhoneNumber);
-                    command.Parameters.AddWithValue("@Address", model.Address);
-                    command.Parameters.AddWithValue("@StartDate", model.StartDate);
-                    command.Parameters.AddWithValue("@BasicPay", model.BasicPay);
-                    command.Parameters.AddWithValue("@Deductions", model.Deductions);
-                    command.Parameters.AddWithValue("@TaxablePay", model.TaxablePay);
-                    command.Parameters.AddWithValue("@Tax", model.Tax);
-                    command.Parameters.AddWithValue("@NetPay", model.NetPay);
-                    connection.Open();
-                    var result = command.ExecuteNonQuery();
-                    connection.Close();
-                    if (result != 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-            }
-            finally
-            {
-                connection.Close();
-            }
-            return false;
         }
 
         // Method to update Salary of particular employee
@@ -151,56 +110,55 @@ namespace EmployeePayroll_ADO.NET
         // Method to get Employee details by name
         public void GetEmployeeByName(string name)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
+            connection = new SqlConnection(connectionString);
             try
             {
-                using (connection)
-                {
-                    EmployeeModel employeeModel = new EmployeeModel();
-                    SqlCommand command = new SqlCommand("spGetEmployeeByName", this.connection);
-                    command.Parameters.AddWithValue("@EmployeeName", name);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    this.connection.Open();
-                    SqlDataReader dr = command.ExecuteReader();
-                    if (dr.HasRows)
-                    {
-                        while (dr.Read())
-                        {
-                            employeeModel.EmployeeID = dr.GetInt32(0);
-                            employeeModel.EmployeeName = !dr.IsDBNull(1) ? dr.GetString(1) : "NA";
-                            employeeModel.Gender = !dr.IsDBNull(2) ? Convert.ToChar(dr.GetString(2)) : 'N';
-                            employeeModel.Company = !dr.IsDBNull(3) ? dr.GetString(3) : "NA";
-                            employeeModel.Department = !dr.IsDBNull(4) ? dr.GetString(4) : "NA";
-                            employeeModel.PhoneNumber = !dr.IsDBNull(5) ? dr.GetString(5) : "NA";
-                            employeeModel.Address = !dr.IsDBNull(6) ? dr.GetString(6) : "NA";
-                            employeeModel.StartDate = !dr.IsDBNull(7) ? dr.GetDateTime(7) : DateTime.MinValue;
-                            employeeModel.BasicPay = !dr.IsDBNull(8) ? dr.GetDecimal(8) : 0;
-                            employeeModel.Deductions = !dr.IsDBNull(9) ? dr.GetDecimal(9) : 0;
-                            employeeModel.TaxablePay = !dr.IsDBNull(10) ? dr.GetDecimal(10) : 0;
-                            employeeModel.Tax = !dr.IsDBNull(11) ? dr.GetDecimal(11) : 0;
-                            employeeModel.NetPay = !dr.IsDBNull(12) ? dr.GetDecimal(12) : 0;
 
-                            // Printing Employee_payroll data
-                            Console.WriteLine("Payroll data of {0} : ", name);
-                            Console.WriteLine("Employee ID   : " + employeeModel.EmployeeID);
-                            Console.WriteLine("Employee Name : " + employeeModel.EmployeeName);
-                            Console.WriteLine("Gender        : " + employeeModel.Gender);
-                            Console.WriteLine("Company       : " + employeeModel.Company);
-                            Console.WriteLine("Department    : " + employeeModel.Department);
-                            Console.WriteLine("Phone Number  : " + employeeModel.PhoneNumber);
-                            Console.WriteLine("Address       : " + employeeModel.Address);
-                            Console.WriteLine("Start Date    : " + employeeModel.StartDate.ToString("dd-mm-yyyy"));
-                            Console.Write("Basic Pay : " + Math.Round(employeeModel.BasicPay, 0) + "\tDeductions : " + Math.Round(employeeModel.Deductions, 0));
-                            Console.Write("\tTaxable Pay : " + Math.Round(employeeModel.TaxablePay, 0) + "\tIncome Tax : " + Math.Round(employeeModel.Tax, 0));
-                            Console.Write("\tNet Pay : " + Math.Round(employeeModel.NetPay, 0));
-                            Console.WriteLine("\n");
-                        }
-                    }
-                    else
+                EmployeeModel employeeModel = new EmployeeModel();
+                SqlCommand command = new SqlCommand("spGetEmployeeByName", this.connection);
+                command.Parameters.AddWithValue("@EmployeeName", name);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                this.connection.Open();
+                SqlDataReader dr = command.ExecuteReader();
+                if (dr.HasRows)
+                {
+                    while (dr.Read())
                     {
-                        System.Console.WriteLine("No record found with name '{0}'",name);
+                        employeeModel.EmployeeID = dr.GetInt32(0);
+                        employeeModel.EmployeeName = !dr.IsDBNull(1) ? dr.GetString(1) : "NA";
+                        employeeModel.Gender = !dr.IsDBNull(2) ? Convert.ToChar(dr.GetString(2)) : 'N';
+                        employeeModel.Company = !dr.IsDBNull(3) ? dr.GetString(3) : "NA";
+                        employeeModel.Department = !dr.IsDBNull(4) ? dr.GetString(4) : "NA";
+                        employeeModel.PhoneNumber = !dr.IsDBNull(5) ? dr.GetString(5) : "NA";
+                        employeeModel.Address = !dr.IsDBNull(6) ? dr.GetString(6) : "NA";
+                        employeeModel.StartDate = !dr.IsDBNull(7) ? dr.GetDateTime(7) : DateTime.MinValue;
+                        employeeModel.BasicPay = !dr.IsDBNull(8) ? dr.GetDecimal(8) : 0;
+                        employeeModel.Deductions = !dr.IsDBNull(9) ? dr.GetDecimal(9) : 0;
+                        employeeModel.TaxablePay = !dr.IsDBNull(10) ? dr.GetDecimal(10) : 0;
+                        employeeModel.Tax = !dr.IsDBNull(11) ? dr.GetDecimal(11) : 0;
+                        employeeModel.NetPay = !dr.IsDBNull(12) ? dr.GetDecimal(12) : 0;
+
+                        // Printing Employee_payroll data
+                        Console.WriteLine("Payroll data of {0} : ", name);
+                        Console.WriteLine("Employee ID   : " + employeeModel.EmployeeID);
+                        Console.WriteLine("Employee Name : " + employeeModel.EmployeeName);
+                        Console.WriteLine("Gender        : " + employeeModel.Gender);
+                        Console.WriteLine("Company       : " + employeeModel.Company);
+                        Console.WriteLine("Department    : " + employeeModel.Department);
+                        Console.WriteLine("Phone Number  : " + employeeModel.PhoneNumber);
+                        Console.WriteLine("Address       : " + employeeModel.Address);
+                        Console.WriteLine("Start Date    : " + employeeModel.StartDate.ToString("dd-mm-yyyy"));
+                        Console.Write("Basic Pay : " + Math.Round(employeeModel.BasicPay, 0) + "\tDeductions : " + Math.Round(employeeModel.Deductions, 0));
+                        Console.Write("\tTaxable Pay : " + Math.Round(employeeModel.TaxablePay, 0) + "\tIncome Tax : " + Math.Round(employeeModel.Tax, 0));
+                        Console.Write("\tNet Pay : " + Math.Round(employeeModel.NetPay, 0));
+                        Console.Write("\n");
                     }
                 }
+                else
+                {
+                    System.Console.WriteLine("No record found with name '{0}'", name);
+                }
+
             }
             catch (Exception e)
             {
@@ -219,6 +177,8 @@ namespace EmployeePayroll_ADO.NET
             connection = new SqlConnection(connectionString);
             try
             {
+                if (date1 > date2)
+                    throw new Exception("Start date cannot be greater than End date!");
                 EmployeeModel employeeModel = new EmployeeModel();
                 List<EmployeeModel> employeeList = new List<EmployeeModel>();
                 SqlCommand command = new SqlCommand("SpGetEmployeesByStartDateRange", this.connection);
@@ -230,10 +190,12 @@ namespace EmployeePayroll_ADO.NET
                 SqlDataReader dr = command.ExecuteReader();
                 if (dr.HasRows)
                 {
+                    Console.WriteLine("List of Employees who joined between {0} and {1} : \n", date1.ToString("dd-mm-yyyy"), date2.ToString("dd-mm-yyyy"));
                     // Printing column headers in Employee_Payroll
-                    Console.Write("EmpID" + "\t" + "Name" + "\t\t" + "Gender" + "\t " + "Company" + "\t");
-                    Console.Write("Department" + "\t" + "PhoneNumber" + "\t" + "Address" + "\t" + "StartDate" + "\t");
-                    Console.Write("Basic" + "\t" + "Deductions" + "\t" + "Taxable" + "\t" + "Tax" + "\t" + "NetPay\n");
+                    Console.Write("ID  " + " Name  " + " Gender  " + " Company" + "\t");
+                    Console.Write("Department  " + " PhoneNo. " + "  Address" + "     " + "StartDate");
+                    Console.Write("  Basic " + "Deductions " + "Taxable  " + "Tax  " + " NetPay\n");
+                    Console.Write("------------------------------------------------------------------------------------------------------------------------");
 
                     while (dr.Read())
                     {
@@ -252,10 +214,11 @@ namespace EmployeePayroll_ADO.NET
                         employeeModel.NetPay = !dr.IsDBNull(12) ? dr.GetDecimal(12) : 0;
                         employeeList.Add(employeeModel);
 
-                        Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.EmployeeID, employeeModel.EmployeeName, employeeModel.Gender, employeeModel.Company);
-                        Console.Write("{0}\t{1}\t{2}\t{3}\t", employeeModel.Department, employeeModel.PhoneNumber, employeeModel.Address, employeeModel.StartDate.ToString("dd-mm-yyyy"));
-                        Console.Write("{0}\t{1}\t{2}\t", Math.Round(employeeModel.BasicPay, 0), Math.Round(employeeModel.Deductions, 0), Math.Round(employeeModel.TaxablePay, 0));
-                        Console.Write("{0}\t{1}", Math.Round(employeeModel.Tax, 0), Math.Round(employeeModel.NetPay, 0));
+                        // Printing Employee_payroll data
+                        Console.Write(employeeModel.EmployeeID + "   " + employeeModel.EmployeeName.PadRight(12) + employeeModel.Gender + "   " + employeeModel.Company.PadRight(12));
+                        Console.Write(employeeModel.Department.PadRight(12) + employeeModel.PhoneNumber.PadRight(12) + employeeModel.Address.PadRight(12) + employeeModel.StartDate.ToString("dd-mm-yyyy").PadRight(12));
+                        Console.Write(Math.Round(employeeModel.BasicPay, 0) + "\t" + Math.Round(employeeModel.Deductions, 0) + "\t" + Math.Round(employeeModel.TaxablePay, 0) + "\t");
+                        Console.Write(Math.Round(employeeModel.Tax, 0) + "\t" + Math.Round(employeeModel.NetPay, 0));
                         Console.WriteLine("\n");
                     }
                 }
@@ -263,7 +226,7 @@ namespace EmployeePayroll_ADO.NET
                 {
                     Console.WriteLine("No employee joinings found in the given data range");
                 }
-            return employeeList;
+                return employeeList;
             }
             catch (Exception e)
             {
@@ -290,11 +253,12 @@ namespace EmployeePayroll_ADO.NET
                     SqlDataReader dr = command.ExecuteReader();
                     if (dr.HasRows)
                     {
+                        Console.WriteLine("Sum of salaries genderwise :");
                         Console.WriteLine(" Gender\t Sum");
                         while (dr.Read())
                         {
-                            Console.Write("  "+dr.GetString(0) + "\t"+ dr.GetDecimal(1));
-                            Console.WriteLine("\n");
+                            Console.Write("  " + dr.GetString(0) + "\t" + dr.GetDecimal(1));
+                            Console.Write("\n");
                         }
                     }
                     else
@@ -323,11 +287,12 @@ namespace EmployeePayroll_ADO.NET
                     SqlDataReader dr = command.ExecuteReader();
                     if (dr.HasRows)
                     {
+                        Console.WriteLine("Average of salaries genderwise :");
                         Console.WriteLine(" Gender\t Average");
                         while (dr.Read())
                         {
-                            Console.Write("  "+dr.GetString(0) + "\t"+ dr.GetDecimal(1));
-                            Console.WriteLine("\n");
+                            Console.Write("  " + dr.GetString(0) + "\t" + dr.GetDecimal(1));
+                            Console.Write("\n");
                         }
                     }
                     else
@@ -356,11 +321,12 @@ namespace EmployeePayroll_ADO.NET
                     SqlDataReader dr = command.ExecuteReader();
                     if (dr.HasRows)
                     {
+                        Console.WriteLine("Minimum salary genderwise :");
                         Console.WriteLine(" Gender\t Minimum Salary");
                         while (dr.Read())
                         {
-                            Console.Write("  "+dr.GetString(0) + "\t"+ dr.GetDecimal(1));
-                            Console.WriteLine("\n");
+                            Console.Write("  " + dr.GetString(0) + "\t" + dr.GetDecimal(1));
+                            Console.Write("\n");
                         }
                     }
                     else
@@ -389,11 +355,12 @@ namespace EmployeePayroll_ADO.NET
                     SqlDataReader dr = command.ExecuteReader();
                     if (dr.HasRows)
                     {
+                        Console.WriteLine("Maximum salary genderwise :");
                         Console.WriteLine(" Gender\t Maximum Salary");
                         while (dr.Read())
                         {
-                            Console.Write("  "+dr.GetString(0) + "\t"+ dr.GetDecimal(1));
-                            Console.WriteLine("\n");
+                            Console.Write("  " + dr.GetString(0) + "\t" + dr.GetDecimal(1));
+                            Console.Write("\n");
                         }
                     }
                     else
@@ -422,11 +389,12 @@ namespace EmployeePayroll_ADO.NET
                     SqlDataReader dr = command.ExecuteReader();
                     if (dr.HasRows)
                     {
+                        Console.WriteLine("Employee count genderwise :");
                         Console.WriteLine(" Gender\t Count");
                         while (dr.Read())
                         {
-                            Console.Write("  "+dr.GetString(0) + "\t  "+ dr.GetInt32(1));
-                            Console.WriteLine("\n");
+                            Console.Write("  " + dr.GetString(0) + "\t  " + dr.GetInt32(1));
+                            Console.Write("\n");
                         }
                     }
                     else
@@ -439,6 +407,49 @@ namespace EmployeePayroll_ADO.NET
             {
                 Console.WriteLine(exception.Message);
             }
+        }
+
+        // Method to add new employee to the database
+        public bool AddEmployee(EmployeeModel model)
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            try
+            {
+                using (connection)
+                {
+                    SqlCommand command = new SqlCommand("SpAddEmployeeDetails", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@EmployeeName", model.EmployeeName);
+                    command.Parameters.AddWithValue("@Gender", model.Gender);
+                    command.Parameters.AddWithValue("@Company_Name", model.Company);
+                    command.Parameters.AddWithValue("@Dept_Name", model.Department);
+                    command.Parameters.AddWithValue("@Phone_No", model.PhoneNumber);
+                    command.Parameters.AddWithValue("@Address", model.Address);
+                    command.Parameters.AddWithValue("@start_date", model.StartDate);
+                    command.Parameters.AddWithValue("@BasicPay", model.BasicPay);
+                    command.Parameters.AddWithValue("@Deduction", model.Deductions);
+                    command.Parameters.AddWithValue("@TaxablePay", model.TaxablePay);
+                    command.Parameters.AddWithValue("@IncomeTax", model.Tax);
+                    command.Parameters.AddWithValue("@NetPay", model.NetPay);
+                    connection.Open();
+                    var result = command.ExecuteNonQuery();
+                    connection.Close();
+                    if (result != 0)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
+            return false;
         }
     }
 }
