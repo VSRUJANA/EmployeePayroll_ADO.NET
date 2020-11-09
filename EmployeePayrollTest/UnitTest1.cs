@@ -27,5 +27,28 @@ namespace EmployeePayrollTest
             List<EmployeeModel> actual=repo.GetEmployeesGivenDateRange(date1, date2);
             Assert.AreEqual(actual.Count(), 4);
         }
+
+        [TestMethod]
+        public void GivenNewEmployee_AddEmployeeMethod_ShouldReturnTrue()
+        {
+            EmployeeRepo repo = new EmployeeRepo();
+            EmployeeModel employee = new EmployeeModel()
+            {
+                EmployeeName = "Devrath",
+                Gender = 'M',
+                Company="Accenture",
+                Department = "Sales",
+                PhoneNumber = "6308299587",
+                Address = "Hyderabad",
+                StartDate = Convert.ToDateTime("05-04-2019"),
+                BasicPay = 100000,
+                Deductions = 2000,
+                TaxablePay = 98000,
+                Tax = 10000,
+                NetPay = 97000,                
+            };
+            bool result = repo.AddEmployee(employee);
+            Assert.AreEqual(true,result);
+        }
     }
 }
