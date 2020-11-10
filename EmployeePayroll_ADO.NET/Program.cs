@@ -65,33 +65,23 @@ namespace EmployeePayroll_ADO.NET
                         Console.Write("________________________________________________________________________________________________________________________");
                         break;
                     case 10:
-                        EmployeeModel employee = new EmployeeModel();
                         Console.Write("Enter Name :");
-                        employee.EmployeeName = Console.ReadLine();
+                        string employeeName = Console.ReadLine();
                         Console.Write("Enter Gender :");
-                        employee.Gender = Convert.ToChar(Console.ReadLine());
+                        char gender = Convert.ToChar(Console.ReadLine());
                         Console.Write("Enter Company :");
-                        employee.Company = Console.ReadLine();
+                        string company = Console.ReadLine();
                         Console.Write("Enter Department :");
-                        employee.Department = Console.ReadLine();
+                        string department = Console.ReadLine();
                         Console.Write("Enter Phone Number :");
-                        employee.PhoneNumber = Console.ReadLine();
+                        string phoneNumber = Console.ReadLine();
                         Console.Write("Enter Address :");
-                        employee.Address = Console.ReadLine();
+                        string address = Console.ReadLine();
                         Console.Write("Enter Start date :");
-                        employee.StartDate = Convert.ToDateTime(Console.ReadLine());
+                        DateTime startdate = Convert.ToDateTime(Console.ReadLine());
                         Console.Write("Enter Basic pay :");
-                        employee.BasicPay = Convert.ToDecimal(Console.ReadLine());
-                        Console.Write("Enter Deductions :");
-                        employee.Deductions = Convert.ToDecimal(Console.ReadLine());
-                        Console.Write("Enter Taxable pay :");
-                        employee.TaxablePay = Convert.ToDecimal(Console.ReadLine());
-                        Console.Write("Enter Tax :");
-                        employee.Tax = Convert.ToDecimal(Console.ReadLine());
-                        Console.Write("Enter Net pay :");
-                        employee.NetPay = Convert.ToDecimal(Console.ReadLine());
-                        if (repo.AddEmployee(employee))
-                            Console.WriteLine("Employee details added successfully!");
+                        decimal basicPay = Convert.ToDecimal(Console.ReadLine());
+                        repo.AddDerivedPayrollFields(employeeName,gender,company,department,phoneNumber,address,startdate,basicPay);
                         Console.Write("________________________________________________________________________________________________________________________");
                         break;
                     case 11:

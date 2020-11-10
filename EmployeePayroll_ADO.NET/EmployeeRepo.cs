@@ -18,11 +18,11 @@ namespace EmployeePayroll_ADO.NET
             try
             {
                 EmployeeModel employeeModel = new EmployeeModel();
-                using (this.connection)
+                using (connection)
                 {
                     string query = @"Select * from Employee";
-                    SqlCommand cmd = new SqlCommand(query, this.connection);
-                    this.connection.Open();
+                    SqlCommand cmd = new SqlCommand(query, connection);
+                    connection.Open();
                     SqlDataReader dr = cmd.ExecuteReader();
                     if (dr.HasRows)
                     {
@@ -49,8 +49,8 @@ namespace EmployeePayroll_ADO.NET
                             employeeModel.NetPay = !dr.IsDBNull(12) ? dr.GetDecimal(12) : 0;
 
                             // Printing Employee_payroll data
-                            Console.Write(employeeModel.EmployeeID + "   " + employeeModel.EmployeeName.PadRight(12) + employeeModel.Gender + "   " + employeeModel.Company.PadRight(12));
-                            Console.Write(employeeModel.Department.PadRight(12) + employeeModel.PhoneNumber.PadRight(12) + employeeModel.Address.PadRight(12) + employeeModel.StartDate.ToString("dd-mm-yyyy").PadRight(12));
+                            Console.Write(employeeModel.EmployeeID.ToString().PadRight(3)+ employeeModel.EmployeeName.PadRight(12) + employeeModel.Gender + "   " + employeeModel.Company.PadRight(12));
+                            Console.Write(employeeModel.Department.PadRight(12) + employeeModel.PhoneNumber.PadRight(12) + employeeModel.Address.PadRight(12) + employeeModel.StartDate.ToString("dd-MM-yyyy").PadRight(12));
                             Console.Write(Math.Round(employeeModel.BasicPay, 0) + "\t" + Math.Round(employeeModel.Deductions, 0) + "\t" + Math.Round(employeeModel.TaxablePay, 0) + "\t");
                             Console.Write(Math.Round(employeeModel.Tax, 0) + "\t" + Math.Round(employeeModel.NetPay, 0));
                             Console.WriteLine("\n");
@@ -69,7 +69,7 @@ namespace EmployeePayroll_ADO.NET
 
             finally
             {
-                this.connection.Close();
+                connection.Close();
             }
         }
 
@@ -81,11 +81,11 @@ namespace EmployeePayroll_ADO.NET
             {
                 using (connection)
                 {
-                    SqlCommand command = new SqlCommand("spUpdateEmployeeSalary", this.connection);
+                    SqlCommand command = new SqlCommand("spUpdateEmployeeSalary", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@EmployeeName", name);
                     command.Parameters.AddWithValue("@BasicPay", salary);
-                    this.connection.Open();
+                    connection.Open();
                     var result = command.ExecuteNonQuery();
                     if (result != 0)
                     {
@@ -102,7 +102,7 @@ namespace EmployeePayroll_ADO.NET
             }
             finally
             {
-                this.connection.Close();
+                connection.Close();
             }
             return false;
         }
@@ -115,10 +115,10 @@ namespace EmployeePayroll_ADO.NET
             {
 
                 EmployeeModel employeeModel = new EmployeeModel();
-                SqlCommand command = new SqlCommand("spGetEmployeeByName", this.connection);
+                SqlCommand command = new SqlCommand("spGetEmployeeByName", connection);
                 command.Parameters.AddWithValue("@EmployeeName", name);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                this.connection.Open();
+                connection.Open();
                 SqlDataReader dr = command.ExecuteReader();
                 if (dr.HasRows)
                 {
@@ -167,7 +167,7 @@ namespace EmployeePayroll_ADO.NET
 
             finally
             {
-                this.connection.Close();
+                connection.Close();
             }
         }
 
@@ -181,11 +181,11 @@ namespace EmployeePayroll_ADO.NET
                     throw new Exception("Start date cannot be greater than End date!");
                 EmployeeModel employeeModel = new EmployeeModel();
                 List<EmployeeModel> employeeList = new List<EmployeeModel>();
-                SqlCommand command = new SqlCommand("SpGetEmployeesByStartDateRange", this.connection);
+                SqlCommand command = new SqlCommand("SpGetEmployeesByStartDateRange", connection);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@StartDate1", date1);
                 command.Parameters.AddWithValue("@StartDate2", date2);
-                this.connection.Open();
+                connection.Open();
 
                 SqlDataReader dr = command.ExecuteReader();
                 if (dr.HasRows)
@@ -234,7 +234,7 @@ namespace EmployeePayroll_ADO.NET
             }
             finally
             {
-                this.connection.Close();
+                connection.Close();
             }
             return null;
         }
@@ -451,8 +451,86 @@ namespace EmployeePayroll_ADO.NET
             }
             return false;
         }
+
+        // Method to add derived payroll details when new Employee is added to the Employee_Payroll
+        public bool AddDerivedPayrollFields(string employeeName, char gender, string company, string department, string phoneNumber, string address, DateTime startDate, decimal basicPay)
+        {
+            SqlConnection connection = new SqlConnection(connectionString);
+            int employeeAdded = 0;
+            int payrollAdded = 0;
+            try
+            {
+                using (connection)
+                { 
+                    EmployeeModel model = new EmployeeModel();
+                    model.EmployeeName = employeeName;
+                    model.Gender = gender;
+                    model.Company = company;
+                    model.Department = department;
+                    model.PhoneNumber = phoneNumber;
+                    model.Address = address;
+                    model.StartDate = startDate;
+                    model.BasicPay = basicPay;
+                    string addEmployeeQuery = "INSERT INTO Employee_payroll VALUES(@Emp_Name,@gender,@Company_Name,@Dept_Name,@phoneNumber,@address,@startDate,@basicPay)";
+                    SqlCommand addEmployeeCmd = new SqlCommand(addEmployeeQuery, connection);
+                    using (addEmployeeCmd)
+                    {
+                        // define parameters and their values
+                        addEmployeeCmd.Parameters.Add("@Emp_Name", SqlDbType.VarChar).Value = employeeName;
+                        addEmployeeCmd.Parameters.Add("@gender", SqlDbType.Char).Value = gender;
+                        addEmployeeCmd.Parameters.Add("@Company_Name", SqlDbType.VarChar).Value = company;
+                        addEmployeeCmd.Parameters.Add("@Dept_Name", SqlDbType.VarChar).Value = department;
+                        addEmployeeCmd.Parameters.Add("@phoneNumber", SqlDbType.VarChar).Value = phoneNumber;
+                        addEmployeeCmd.Parameters.Add("@address", SqlDbType.VarChar).Value = address;
+                        addEmployeeCmd.Parameters.Add("@startDate", SqlDbType.Date).Value = startDate;
+                        addEmployeeCmd.Parameters.Add("@basicPay", SqlDbType.Decimal).Value = basicPay;
+
+                        // open connection, execute INSERT, close connection
+                        connection.Open();
+                        employeeAdded = addEmployeeCmd.ExecuteNonQuery();
+                        connection.Close();
+                    }
+
+                    // Calculate derived payroll details
+                    model.Deductions = 0.2m * basicPay;
+                    model.TaxablePay = basicPay - model.Deductions;
+                    model.Tax = 0.1m * model.TaxablePay;
+                    model.NetPay = model.TaxablePay - model.Tax;
+
+                    string addPayrollQuery = @"INSERT INTO payroll_detail VALUES(@basic_Pay,@deduction,@taxablePay,@incomeTax,@netPay)";
+                    SqlCommand addPayrollCmd = new SqlCommand(addPayrollQuery, connection);
+                    using (addPayrollCmd)
+                    {
+                        addPayrollCmd.Parameters.Add("@basic_Pay", SqlDbType.Decimal).Value = basicPay;
+                        addPayrollCmd.Parameters.Add("@deduction", SqlDbType.Decimal).Value = model.Deductions;
+                        addPayrollCmd.Parameters.Add("@taxablePay", SqlDbType.Decimal).Value = model.TaxablePay;
+                        addPayrollCmd.Parameters.Add("@incomeTax", SqlDbType.Decimal).Value = model.Tax;
+                        addPayrollCmd.Parameters.Add("@netPay", SqlDbType.Decimal).Value = model.NetPay;
+
+                        // open connection, execute INSERT, close connection
+                        connection.Open();
+                        payrollAdded = addPayrollCmd.ExecuteNonQuery();
+                        connection.Close();
+                    }
+                    if (employeeAdded == 1 && payrollAdded == 1)
+                    {
+                        AddEmployee(model);
+                        Console.WriteLine("Record added successfully");
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+
     }
 }
-
-
-
